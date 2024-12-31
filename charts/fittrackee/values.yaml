@@ -1,0 +1,149 @@
+# Default values for fittrackee.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+fittrackee:
+  # https://github.com/SamR1/FitTrackee/blob/master/docker-compose.yml
+  # https://github.com/SamR1/FitTrackee/blob/master/Dockerfile
+  # https://samr1.github.io/FitTrackee/en/installation.html#production
+  # https://samr1.github.io/FitTrackee/en/installation.html#environment-variables
+  port: 5000
+  appSecretKey:
+    generate: true
+    secretKeyRef:
+      name: ""
+      key: ""
+  appWorkers: 1
+  queueWorkers: 1
+  uploadDir: /uploads
+  # https://samr1.github.io/FitTrackee/en/installation.html#api-rate-limits
+  apiRateLimits: 300 per 5 minutes
+  map:
+    tileServerUrl: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+    # https://samr1.github.io/FitTrackee/en/installation.html#map-tile-server
+    staticMapSubdomain: ""
+    defaultStaticMap: false
+
+postgresql:
+  enabled: true
+  externalConnection:
+    host: ""
+    usernameSecretKeyRef:
+      name: ""
+      key: ""
+    passwordSecretKeyRef:
+      name: ""
+      key: ""
+
+redis:
+  enabled: true
+  externalConnection:
+    host: ""
+    usernameSecretKeyRef:
+      name: ""
+      key: ""
+    passwordSecretKeyRef:
+      name: ""
+      key: ""
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: ghcr.io/samr1/fittrackee
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  tagPrefix: v
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 80
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
