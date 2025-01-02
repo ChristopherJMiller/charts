@@ -35,23 +35,106 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tagPrefix }}{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["sh"]
-          args: ["docker-entrypoint.sh"]
+          args:
+            - -c
+            - |
+              export DATABASE_URL=postgresql+psycopg2://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
+              echo $DATABASE_URL
+              export REDIS_URL=redis://redis:$REDIS_PASS@$REDIS_HOST
+              echo $REDIS_URL
+              sh /usr/src/app/docker-entrypoint.sh
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.fittrackee.port }}
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "fittrackee.fullname" . }}
+          env:
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  {{ if .Values.fittrackee.appSecretKey.generate -}}
+                  name: {{ include "fittrackee.fullname" . }}-app-secret
+                  key: app-secret-key
+                  {{ else -}}
+                    {{ .Values.fittrackee.appSecretKey.secretKeyRef | toYaml | indent 18 }}
+                  {{- end }}
+            - name: POSTGRES_HOST
+              {{ if .Values.postgresql.enabled -}}
+              value: {{ .Release.Name }}-postgresql
+              {{ else -}}
+              valueFrom:
+                secretKeyRef:
+                  {{ .Values.postgresql.externalConnection.host | toYaml | nindent 18 }}
+              {{- end }}
+            - name: POSTGRES_USER
+              {{ if .Values.postgresql.enabled -}}
+              value: postgres
+              {{ else -}}
+              valueFrom:
+                secretKeyRef:
+                  {{ .Values.postgresql.externalConnection.usernameSecretKeyRef | toYaml | nindent 18 }}
+              {{- end }}
+            - name: POSTGRES_PASSWORD
+              {{ if .Values.postgresql.enabled -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgresql
+                  key: postgres-password
+              {{ else -}}
+              valueFrom:
+                secretKeyRef:
+                {{ .Values.postgresql.externalConnection.passwordSecretKeyRef | toYaml | nindent 18 }}
+              {{- end }}
+            - name: POSTGRES_DB
+              {{ if .Values.postgresql.enabled -}}
+              value: postgres
+              {{ else -}}
+              value: {{ .Values.postgresql.externalConnection.database }}
+              {{- end }}
+            - name: POSTGRES_PORT
+              {{ if .Values.postgresql.enabled -}}
+              value: "5432"
+              {{ else -}}
+              value: {{ .Values.postgresql.externalConnection.port }}
+              {{- end }}
+            - name: REDIS_HOST
+              {{ if .Values.redis.enabled -}}
+              value: {{ .Release.Name }}-redis
+              {{ else -}}
+              valueFrom:
+                secretKeyRef:
+                  {{ .Values.redis.externalConnection.host | toYaml | nindent 18 }}
+              {{- end }}
+            - name: REDIS_PASS
+              {{ if .Values.redis.enabled -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis
+                  key: redis-password
+              {{ else -}}
+              valueFrom:
+                secretKeyRef:
+                  {{ .Values.redis.externalConnection.passwordSecretKeyRef | toYaml | nindent 18 }}
+              {{- end }}
+
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - mountPath: /usr/src/app/logs
+              name: logs
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+      - name: logs
+        emptyDir: {}
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

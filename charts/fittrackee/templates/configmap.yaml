@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fittrackee.fullname" . }}
+  labels:
+    {{- include "fittrackee.labels" . | nindent 4 }}
+data:
+  HOST: "0.0.0.0"
+  PORT: {{ .Values.fittrackee.port | quote }}
+  APP_WORKERS: {{ .Values.fittrackee.appWorkers | quote }}
+  WORKER_PROCESSES: {{ .Values.fittrackee.queueWorkers | quote }}
+  UPLOAD_DIR: {{ .Values.fittrackee.uploadDir | quote  }}
+  LOG_DIR: "/logs"
+  API_RATE_LIMITS: {{ .Values.fittrackee.apiRateLimits | quote  }}
+  TILE_SERVER_URL: {{ .Values.fittrackee.map.tileServerUrl | quote  }}
+  STATICMAP_SUBDOMAINS: {{ .Values.fittrackee.map.staticMapSubdomain | quote  }}
+  DEFAULT_STATICMAP: {{ .Values.fittrackee.map.defaultStaticMap | toString | title | quote }}
