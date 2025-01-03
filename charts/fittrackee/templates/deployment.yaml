@@ -93,7 +93,7 @@ spec:
               {{ if .Values.postgresql.enabled -}}
               value: "5432"
               {{ else -}}
-              value: {{ .Values.postgresql.externalConnection.port }}
+              value: {{ .Values.postgresql.externalConnection.port | quote }}
               {{- end }}
             - name: REDIS_HOST
               {{ if .Values.redis.enabled -}}
