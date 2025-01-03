@@ -125,6 +125,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+          - mountPath: /tmp
+            name: tmp
           - mountPath: /usr/src/app/logs
             name: logs
           - mountPath: {{ .Values.fittrackee.uploadDir }}
@@ -133,6 +135,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
+      - name: tmp
+        emptyDir: {}
       - name: logs
         emptyDir: {}
       - name: data
