@@ -3,6 +3,25 @@ entries:
   fittrackee:
   - apiVersion: v2
     appVersion: 0.8.13
+    created: "2025-01-03T16:30:25.972315805Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 16.0.4
+    - condition: redis.enabled
+      name: redis
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 20.6.1
+    description: A Helm chart for FitTrackee
+    digest: b6f7b8d4a8405f5393f65f63f2dd9d162937887b96c69846aebad1c522be5344
+    name: fittrackee
+    type: application
+    urls:
+    - https://github.com/ChristopherJMiller/charts/releases/download/fittrackee-0.2.2/fittrackee-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 0.8.13
     created: "2025-01-03T16:25:45.764253868Z"
     dependencies:
     - condition: postgresql.enabled
@@ -58,4 +77,4 @@ entries:
     urls:
     - https://github.com/ChristopherJMiller/charts/releases/download/fittrackee-0.1.0/fittrackee-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-03T16:25:45.764266251Z"
+generated: "2025-01-03T16:30:25.972337175Z"
