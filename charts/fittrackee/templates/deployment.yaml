@@ -52,19 +52,17 @@ spec:
             - name: APP_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  {{ if .Values.fittrackee.appSecretKey.generate -}}
+                  {{- if .Values.fittrackee.appSecretKey.generate -}}
                   name: {{ include "fittrackee.fullname" . }}-app-secret
                   key: app-secret-key
-                  {{ else -}}
-                    {{ .Values.fittrackee.appSecretKey.secretKeyRef | toYaml | indent 18 }}
+                  {{- else -}}
+                    {{ .Values.fittrackee.appSecretKey.secretKeyRef | toYaml | nindent 20 }}
                   {{- end }}
             - name: POSTGRES_HOST
               {{ if .Values.postgresql.enabled -}}
               value: {{ .Release.Name }}-postgresql
               {{ else -}}
-              valueFrom:
-                secretKeyRef:
-                  {{ .Values.postgresql.externalConnection.host | toYaml | nindent 18 }}
+              value: {{ .Values.postgresql.externalConnection.host }}
               {{- end }}
             - name: POSTGRES_USER
               {{ if .Values.postgresql.enabled -}}
