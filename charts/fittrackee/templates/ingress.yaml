@@ -37,7 +37,7 @@ spec:
               service:
                 name: {{ include "fittrackee.fullname" $ }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $.Values.fittrackee.port }}
           {{- end }}
     {{- end }}
 {{- end }}
