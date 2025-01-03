@@ -17,7 +17,7 @@ fittrackee:
       key: ""
   appWorkers: 1
   queueWorkers: 1
-  uploadDir: /usr/src/app/uploads
+  uploadDir: /usr/src/app/fittrackee/uploads
   # https://samr1.github.io/FitTrackee/en/installation.html#api-rate-limits
   apiRateLimits: 300 per 5 minutes
   map:
