@@ -38,10 +38,8 @@ spec:
           args:
             - -c
             - |
-              export DATABASE_URL=postgresql+psycopg2://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
-              echo $DATABASE_URL
-              export REDIS_URL=redis://redis:$REDIS_PASS@$REDIS_HOST
-              echo $REDIS_URL
+              DATABASE_URL=postgresql+psycopg2://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB \
+              REDIS_URL=redis://:$REDIS_PASS@$REDIS_HOST:6379 \
               sh /usr/src/app/docker-entrypoint.sh
           ports:
             - name: http
@@ -101,7 +99,7 @@ spec:
               {{- end }}
             - name: REDIS_HOST
               {{ if .Values.redis.enabled -}}
-              value: {{ .Release.Name }}-redis
+              value: {{ .Release.Name }}-redis-master
               {{ else -}}
               valueFrom:
                 secretKeyRef:
@@ -118,7 +116,8 @@ spec:
                 secretKeyRef:
                   {{ .Values.redis.externalConnection.passwordSecretKeyRef | toYaml | nindent 18 }}
               {{- end }}
-
+            - name: EMAIL_URL
+              value: ""
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -126,14 +125,19 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - mountPath: /usr/src/app/logs
-              name: logs
+          - mountPath: /usr/src/app/logs
+            name: logs
+          - mountPath: {{ .Values.fittrackee.uploadDir }}
+            name: data
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
       - name: logs
         emptyDir: {}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "fittrackee.fullname" . }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

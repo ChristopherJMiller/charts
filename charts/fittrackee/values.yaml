@@ -2,11 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# It is recommended to create your user via the cli to activate it properly, set it as an admin,
+# and then disable registration in the admin panel by setting Max Users to 1.
+#
+# export DATABASE_URL=postgresql+psycopg2://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
+# ftcli users create <username> --email <email>
+# ftcli users update <username> --set-admin true
 fittrackee:
-  # https://github.com/SamR1/FitTrackee/blob/master/docker-compose.yml
-  # https://github.com/SamR1/FitTrackee/blob/master/Dockerfile
-  # https://samr1.github.io/FitTrackee/en/installation.html#production
-  # https://samr1.github.io/FitTrackee/en/installation.html#environment-variables
   port: 5000
   appSecretKey:
     generate: true
@@ -44,6 +46,10 @@ redis:
     passwordSecretKeyRef:
       name: ""
       key: ""
+
+pvc:
+  storageClassName: standard
+  size: 10Gi
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
@@ -110,20 +116,20 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 200m
+  #   memory: 256Mi
   # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 200m
+  #   memory: 256Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
   httpGet:
-    path: /
+    path: /api/ping
     port: http
 readinessProbe:
   httpGet:
-    path: /
+    path: /api/ping
     port: http
 
 # Additional volumes on the output Deployment definition.
